@@ -225,11 +225,17 @@ def parse_civitai_input(url_or_id: str) -> tuple[int | None, int | None]:
             else:
                  print(f"Input '{url_or_id}' is not a valid ID or Civitai URL/path.")
                  return None, None
-
+                
         # Check domain if it was present
-        if parsed_url.netloc and "civitai.com" not in parsed_url.netloc.lower():
+        if parsed_url.netloc and "civitai.com" not in parsed_url.netloc.lower() and "civitai.red" not in parsed_url.netloc.lower():
             print(f"Input URL '{url_or_id}' is not a Civitai URL.")
             return None, None
+
+        # Normalize domain: civitai.red -> civitai.com
+        if parsed_url.netloc and "civitai.red" in parsed_url.netloc.lower():
+            url_or_id = url_or_id.replace("civitai.red", "civitai.com", 1)
+            parsed_url = urllib.parse.urlparse(url_or_id)
+            print(f"Normalized URL to: {url_or_id}")
 
         # Extract path components and query parameters
         path_parts = [p for p in parsed_url.path.split('/') if p] # Remove empty parts
